@@ -1,0 +1,10 @@
+{
+  "$schema": "../node_modules/@angular-devkit/schematics/collection-schema.json",
+  "schematics": {
+    "ngx-material-schematics": {
+      "description": "Helps you generate themes for Angular Material application.",
+      "factory": "./ngx-material-schematics/index#ngxMaterialSchematics",
+      "aliases": ["nms"]
+    }
+  }
+}
