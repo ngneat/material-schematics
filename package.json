@@ -20,7 +20,8 @@
     "start": "npm run build -- -w",
     "build": "tsc -p tsconfig.json",
     "test": "npm run build && jasmine src/**/*_spec.js",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "lint": "eslint \"src/**/*.{ts,js}\" && prettier \"src/**/*.{ts,md,json,js}\" --check"
   },
   "keywords": [
     "schematics"
@@ -64,7 +65,7 @@
     }
   },
   "lint-staged": {
-    "*.{ts,js}": "eslint --cache --fix",
-    "*.{ts,md,json,js}": "prettier --write"
+    "src/**/*.{ts,js}": "eslint --cache --fix",
+    "src/**/*.{ts,md,json,js}": "prettier --write"
   }
 }
