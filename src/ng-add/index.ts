@@ -5,7 +5,7 @@ import { sortObjectByKeys } from "../utils";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJSON = require("../../package.json");
 
-export function ngAdd(_options: any): Rule {
+export function ngAdd(): Rule {
   return (tree: Tree, _context: SchematicContext) => {
     if (!tree.exists("package.json")) {
       throw new Error(
