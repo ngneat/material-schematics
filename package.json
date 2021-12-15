@@ -16,6 +16,7 @@
     "save": false
   },
   "scripts": {
+    "commit": "cz",
     "start": "npm run build -- -w",
     "build": "tsc -p tsconfig.json",
     "test": "npm run build && jasmine src/**/*_spec.js"
@@ -38,9 +39,18 @@
     "typescript": "~4.5.2"
   },
   "devDependencies": {
+    "@commitlint/cli": "^15.0.0",
+    "@commitlint/config-conventional": "^15.0.0",
     "@schematics/angular": "^13.1.1",
     "@types/jasmine": "~3.10.0",
     "@types/node": "^12.11.1",
+    "cz-conventional-changelog": "^3.3.0",
+    "husky": "^7.0.4",
     "jasmine": "^3.5.0"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
   }
 }
