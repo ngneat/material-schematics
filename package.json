@@ -19,7 +19,8 @@
     "commit": "cz",
     "start": "npm run build -- -w",
     "build": "tsc -p tsconfig.json",
-    "test": "npm run build && jasmine src/**/*_spec.js"
+    "test": "npm run build && jasmine src/**/*_spec.js",
+    "prepare": "husky install"
   },
   "keywords": [
     "schematics"
@@ -44,13 +45,23 @@
     "@schematics/angular": "^13.1.1",
     "@types/jasmine": "~3.10.0",
     "@types/node": "^12.11.1",
+    "@typescript-eslint/eslint-plugin": "^5.7.0",
+    "@typescript-eslint/parser": "^5.7.0",
     "cz-conventional-changelog": "^3.3.0",
+    "eslint": "^8.4.1",
+    "eslint-config-prettier": "^8.3.0",
     "husky": "^7.0.4",
-    "jasmine": "^3.5.0"
+    "jasmine": "^3.5.0",
+    "lint-staged": "^12.1.2",
+    "prettier": "2.5.1"
   },
   "config": {
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
     }
+  },
+  "lint-staged": {
+    "*.{ts,js}": "eslint --cache --fix",
+    "*.{ts,md,json,js}": "prettier --write"
   }
 }
