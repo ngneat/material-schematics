@@ -1,10 +1,13 @@
 {
   "$schema": "../node_modules/@angular-devkit/schematics/collection-schema.json",
   "schematics": {
-    "ngx-material-schematics": {
-      "description": "Helps you generate themes for Angular Material application.",
-      "factory": "./ngx-material-schematics/index#ngxMaterialSchematics",
-      "aliases": ["nms"]
+    "themes": {
+      "description": "A blank schematic.",
+      "factory": "./themes/index#themes"
+    },
+    "ng-add": {
+      "description": "A blank schematic.",
+      "factory": "./ng-add/index#ngAdd"
     }
   }
 }
