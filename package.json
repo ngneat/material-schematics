@@ -13,7 +13,7 @@
     "url": "https://github.com/shhdharmen/ngx-material-schematics"
   },
   "ng-add": {
-    "save": false
+    "save": "devDependencies"
   },
   "scripts": {
     "commit": "cz",
