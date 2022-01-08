@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "ngx-material-schematics-ng-add",
+  "title": "ngx-material-schematics ng-add schematic",
+  "type": "object",
+  "properties": {
+    "project": {
+      "type": "string",
+      "description": "Name of the project.",
+      "$default": {
+        "$source": "projectName"
+      }
+    },
+    "themeCount": {
+      "description": "Theme count",
+      "type": "number",
+      "default": "2",
+      "x-prompt": {
+        "message": "How many themes you want to setup?",
+        "type": "number"
+      }
+    },
+    "typography": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether to set up global typography styles.",
+      "x-prompt": "Set up global Angular Material typography styles?"
+    },
+    "animations": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether Angular browser animations should be set up.",
+      "x-prompt": "Set up browser animations for Angular Material?"
+    }
+  }
+}

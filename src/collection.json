@@ -1,13 +1,15 @@
 {
   "$schema": "../node_modules/@angular-devkit/schematics/collection-schema.json",
   "schematics": {
-    "themes": {
-      "description": "A blank schematic.",
-      "factory": "./themes/index#themes"
-    },
     "ng-add": {
       "description": "A blank schematic.",
-      "factory": "./ng-add/index#ngAdd"
+      "factory": "./ng-add/index",
+      "schema": "./ng-add/schema.json"
+    },
+    "ng-add-setup-project": {
+      "private": true,
+      "description": "A blank schematic.",
+      "factory": "./ng-add/setup-project"
     }
   }
 }
