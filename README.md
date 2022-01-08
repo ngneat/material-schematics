@@ -5,5 +5,5 @@
 Development is still in-progress, try out at your own risk in Angular v13 project:
 
 ```bash
-ng add ngx-material-schematics
+ng add ngx-material-schematics@beta
 ```
