@@ -1,3 +1,10 @@
+# [1.0.0-beta.2](https://github.com/ngneat/material-schematics/compare/v1.0.0-beta.1...v1.0.0-beta.2) (2022-01-11)
+
+
+### Features
+
+* refactor code and trigger release ([76dd2ae](https://github.com/ngneat/material-schematics/commit/76dd2aecb45ecd6a55897b1f9ff9caf9d472c2ab))
+
 # 1.0.0-beta.1 (2022-01-11)
 
 
