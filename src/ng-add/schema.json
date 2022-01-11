@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
-  "$id": "ngx-material-schematics-ng-add",
-  "title": "ngx-material-schematics ng-add schematic",
+  "$id": "@ngneat/material-schematics-ng-add",
+  "title": "@ngneat/material-schematics ng-add schematic",
   "type": "object",
   "properties": {
     "project": {
