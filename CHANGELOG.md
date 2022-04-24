@@ -1,3 +1,10 @@
+# [1.0.0-beta.3](https://github.com/ngneat/material-schematics/compare/v1.0.0-beta.2...v1.0.0-beta.3) (2022-04-24)
+
+
+### Features
+
+* **pre-built-theme:** add support to integrate pre-built themes ([627a3b5](https://github.com/ngneat/material-schematics/commit/627a3b5ed7a0587adedc746b4a1044488a4d9a77))
+
 # [1.0.0-beta.2](https://github.com/ngneat/material-schematics/compare/v1.0.0-beta.1...v1.0.0-beta.2) (2022-01-11)
 
 
