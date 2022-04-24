@@ -1,6 +1,6 @@
 export interface ThemeSchema {
   name: string;
-  isDarkOrLight: "dark" | "light";
+  isDarkOrLight: MaterialDarkLight;
   isDefault: boolean;
   isLazy: boolean;
   primary: string;
@@ -13,6 +13,7 @@ export interface ThemeSchema {
   configureWarnHues: boolean;
   warnHUEs?: HUE;
   className: string;
+  theme: MaterialTheme;
 }
 
 export interface NgAddSchema {

@@ -18,18 +18,26 @@ import {
   updateWorkspace,
 } from "@schematics/angular/utility/workspace";
 import { basename, dirname, join, normalize, relative } from "path";
-import { prompt } from "inquirer";
+import { DistinctQuestion, prompt } from "inquirer";
 import {
-  mainStyle,
+  mainCustomStyle,
+  createCustomDefaultTheme,
+  createCustomNonDefaultTheme,
   createDefaultTheme,
   createNonDefaultTheme,
+  mainStyle,
 } from "./create-theme";
 import { NgAddSchema, ThemeSchema } from "./schema";
 import { logging } from "@angular-devkit/core";
 import { COLOR_PALETTES } from "../color-palettes";
 import { HUE_LIST } from "../hue-list";
 import { ProjectDefinition } from "@angular-devkit/core/src/workspace";
-import { addClassInIndexFiles } from "./utils";
+import {
+  addClassInIndexFiles,
+  getDefaultPalette,
+  getDefaultTheme,
+} from "./utils";
+import { THEME_LIST } from "../theme-list";
 
 /** Default file name of the custom theme that can be generated. */
 const defaultStylesFilename = "styles.scss";
@@ -43,13 +51,25 @@ export function setUpThemes(options: NgAddSchema): Rule {
     const rules: Rule[] = [];
 
     let isLazyLoadStylePresent = false;
+    let isDefaultPresent = false;
 
     for (let index = 0; index < options.themeCount; index++) {
       context.logger.info(`
   Setting up theme: ${index + 1}
   `);
-      const { themeName, themePath, isDefault, themeContent, isLazy } =
-        await createTheme(options.project, tree, context);
+
+      const {
+        themeName,
+        themePath,
+        themeContent,
+        isLazy,
+        theme,
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore: noImplicitAny
+        ...restThemeResult
+      } = await createTheme(options.project, tree, context, isDefaultPresent);
+
+      isDefaultPresent = restThemeResult.isDefault;
 
       if (tree.exists(themePath)) {
         context.logger
@@ -59,7 +79,7 @@ export function setUpThemes(options: NgAddSchema): Rule {
       } else {
         tree.create(themePath, themeContent);
 
-        if (isDefault) {
+        if (restThemeResult.isDefault) {
           if (!stylesPath) {
             if (!project.sourceRoot) {
               throw new SchematicsException(
@@ -82,10 +102,16 @@ export function setUpThemes(options: NgAddSchema): Rule {
               .replace(".scss", "")
               .replace("_", "");
 
-            const mainStyleContent = mainStyle(
-              partialSCSSPath,
-              options.project + "-" + themeName
-            );
+            let mainStyleContent;
+
+            if (theme === "custom") {
+              mainStyleContent = mainCustomStyle(
+                partialSCSSPath,
+                options.project + "-" + themeName
+              );
+            } else {
+              mainStyleContent = mainStyle(partialSCSSPath);
+            }
 
             if (tree.exists(mainStylesPath)) {
               context.logger
@@ -113,10 +139,16 @@ export function setUpThemes(options: NgAddSchema): Rule {
               .replace(".scss", "")
               .replace("_", "");
 
-            const mainStyleContent = mainStyle(
-              partialSCSSPath,
-              options.project + "-" + themeName
-            );
+            let mainStyleContent;
+
+            if (theme === "custom") {
+              mainStyleContent = mainCustomStyle(
+                partialSCSSPath,
+                options.project + "-" + themeName
+              );
+            } else {
+              mainStyleContent = mainStyle(partialSCSSPath);
+            }
             const insertion = new InsertChange(stylesPath, 0, mainStyleContent);
             const recorder = tree.beginUpdate(stylesPath);
 
@@ -153,7 +185,8 @@ export function setUpThemes(options: NgAddSchema): Rule {
 async function createTheme(
   projectName: string,
   tree: Tree,
-  context: SchematicContext
+  context: SchematicContext,
+  isDefaultPresent: boolean
 ): Promise<
   {
     themeName: string;
@@ -177,6 +210,7 @@ async function createTheme(
             `,
         type: "confirm",
         name: "isDefault",
+        when: !isDefaultPresent,
       },
       {
         message: "Light or dark?",
@@ -185,58 +219,91 @@ async function createTheme(
         name: "isDarkOrLight",
         choices: ["light", "dark"],
       },
-      ...paletteQuestions("Primary"),
-      ...paletteQuestions("Accent"),
-      ...paletteQuestions("Warn"),
       {
         message:
-          "What class name do you want to use for this theme (you will need to apply this class to <body> tag)?",
-        type: "input",
-        name: "className",
-        when: (answer) => !answer.isDefault,
-      },
-      {
-        message:
-          "Would you like to lazy load this theme (Recommended for non-default theme, some extra setup will be needed to load the theme)?",
-        type: "confirm",
-        name: "isLazy",
-        default: true,
-        when: (answer) => !answer.isDefault,
+          'Choose a prebuilt theme name, or "custom" for a custom theme:',
+        type: "list",
+        name: "theme",
+        choices: THEME_LIST,
+        default: (answer: ThemeSchema) => getDefaultTheme(answer.isDarkOrLight),
       },
     ])
-      .then((answers) => {
-        if (!project.sourceRoot) {
-          throw new SchematicsException(
-            `Could not find source root for project: "${projectName}". ` +
-              `Please make sure that the "sourceRoot" property is set in the workspace config.`
+      .then((initialAnswers) => {
+        let questions: DistinctQuestion<Partial<ThemeSchema>>[] = [];
+        if (initialAnswers.theme === "custom") {
+          questions = questions.concat(
+            ...paletteQuestions("Primary"),
+            ...paletteQuestions("Accent"),
+            ...paletteQuestions("Warn")
           );
         }
-        let themeContent, themeFileName;
+        questions = questions.concat([
+          {
+            message:
+              "What class name do you want to use for this theme (you will need to apply this class to <body> tag)?",
+            type: "input",
+            name: "className",
+            when: !initialAnswers.isDefault,
+          },
+          {
+            message:
+              "Would you like to lazy load this theme (Recommended for non-default theme, some extra setup will be needed to load the theme)?",
+            type: "confirm",
+            name: "isLazy",
+            default: true,
+            when: !initialAnswers.isDefault,
+          },
+        ]);
+        prompt<ThemeSchema>(questions)
+          .then((answers) => {
+            answers = { ...answers, ...initialAnswers };
+            if (!project.sourceRoot) {
+              throw new SchematicsException(
+                `Could not find source root for project: "${projectName}". ` +
+                  `Please make sure that the "sourceRoot" property is set in the workspace config.`
+              );
+            }
+            let themeContent, themeFileName;
 
-        if (answers.isDefault) {
-          themeContent = createDefaultTheme(
-            projectName + "-" + answers.name,
-            answers
-          );
-          themeFileName = "_" + answers.name.toLowerCase() + ".scss";
-        } else {
-          themeContent = createNonDefaultTheme(
-            projectName + "-" + answers.name,
-            answers
-          );
-          themeFileName = answers.name.toLowerCase() + ".scss";
-        }
+            if (answers.theme === "custom") {
+              if (answers.isDefault) {
+                themeContent = createCustomDefaultTheme(
+                  projectName + "-" + answers.name,
+                  answers
+                );
+                themeFileName = "_" + answers.name.toLowerCase() + ".scss";
+              } else {
+                themeContent = createCustomNonDefaultTheme(
+                  projectName + "-" + answers.name,
+                  answers
+                );
+                themeFileName = answers.name.toLowerCase() + ".scss";
+              }
+            } else {
+              if (answers.isDefault) {
+                themeContent = createDefaultTheme(answers.theme);
+                themeFileName = "_" + answers.name.toLowerCase() + ".scss";
+              } else {
+                themeContent = createNonDefaultTheme(answers.theme, answers);
+                themeFileName = answers.name.toLowerCase() + ".scss";
+              }
+            }
 
-        const customThemePath = normalize(
-          join(project.sourceRoot, "styles", "themes", themeFileName)
-        );
+            const customThemePath = normalize(
+              join(project.sourceRoot, "styles", "themes", themeFileName)
+            );
 
-        resolve({
-          themeName: answers.name,
-          themePath: customThemePath,
-          themeContent,
-          ...answers,
-        });
+            resolve({
+              themeName: answers.name,
+              themePath: customThemePath,
+              themeContent,
+              ...answers,
+            });
+          })
+          .catch((err) => {
+            context.logger.error(err);
+            reject();
+          });
       })
       .catch((err) => {
         context.logger.error(err);
@@ -313,14 +380,17 @@ function addThemeStyleToTarget(
   });
 }
 
-function paletteQuestions(paletteName: "Primary" | "Accent" | "Warn") {
+function paletteQuestions(
+  paletteName: MaterialPalette
+): ReadonlyArray<DistinctQuestion<Partial<ThemeSchema>>> {
   const paletteNameLowerCase = paletteName.toLowerCase();
   return [
     {
       message: `Choose ${paletteName} theme:`,
-      type: "list",
+      type: "expand",
       name: paletteNameLowerCase,
       choices: COLOR_PALETTES,
+      default: getDefaultPalette(paletteName),
     },
     {
       message: `Configure ${paletteName} hues?`,

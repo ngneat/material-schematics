@@ -28,3 +28,27 @@ export function addClassInIndexFiles(
     }
   };
 }
+
+export function getDefaultPalette(paletteName: MaterialPalette): string {
+  switch (paletteName) {
+    case "Primary":
+      return "mat.$indigo-palette";
+    case "Accent":
+      return "mat.$pink-palette";
+    case "Warn":
+      return "mat.$red-palette";
+    default:
+      return "mat.$indigo-palette";
+  }
+}
+
+export function getDefaultTheme(isDarkOrLight: MaterialDarkLight): number {
+  switch (isDarkOrLight) {
+    case "light":
+      return 0;
+    case "dark":
+      return 1;
+    default:
+      return 0;
+  }
+}

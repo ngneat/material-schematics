@@ -1,6 +1,6 @@
 import { HUE, ThemeSchema } from "./schema";
 
-export function createDefaultTheme(name: string, options: ThemeSchema) {
+export function createCustomDefaultTheme(name: string, options: ThemeSchema) {
   return `
 @use "sass:map";
 @use '@angular/material' as mat;
@@ -32,7 +32,10 @@ $${name}-theme: mat.define-${options.isDarkOrLight}-theme((
 `;
 }
 
-export function createNonDefaultTheme(name: string, options: ThemeSchema) {
+export function createCustomNonDefaultTheme(
+  name: string,
+  options: ThemeSchema
+) {
   return `
 
 @use "sass:map";
@@ -72,7 +75,27 @@ $${name}-theme: mat.define-${options.isDarkOrLight}-theme((
 `;
 }
 
-export function mainStyle(themePath: string, themeName: string) {
+export function createDefaultTheme(themeName: MaterialTheme) {
+  return `
+@import "@angular/material/prebuilt-themes/${themeName}.css";
+
+`;
+}
+
+export function createNonDefaultTheme(themeName: string, options: ThemeSchema) {
+  return `
+
+.${options.className} {
+  // Include theme styles for core and each component used in your app.
+  // Alternatively, you can import and @include the theme mixins for each component
+  // that you are using.
+  @import "@angular/material/prebuilt-themes/${themeName}.css";
+}
+
+`;
+}
+
+export function mainCustomStyle(themePath: string, themeName: string) {
   const pathSegments = themePath.split("/");
   const sassModuleName = pathSegments[pathSegments.length - 1];
   return `
@@ -86,6 +109,13 @@ export function mainStyle(themePath: string, themeName: string) {
 // Alternatively, you can import and @include the theme mixins for each component
 // that you are using.
 @include mat.all-component-themes(${sassModuleName}.$${themeName}-theme);
+
+`;
+}
+
+export function mainStyle(themePath: string) {
+  return `
+@use "${themePath}";
 
 `;
 }
